@@ -2,6 +2,7 @@
 package tester
 
 import (
+	"io"
 	"os"
 	"os/exec"
 	"strings"
@@ -11,6 +12,11 @@ import (
 type Test struct {
 	// Gopath used to fetch the package and run the tests
 	Gopath string
+
+	// Stdout writer to get the command's output
+	Stdout io.Writer
+	// Stderr writer to get the command's output
+	Stderr io.Writer
 }
 
 func (t *Test) env() []string {
@@ -32,26 +38,30 @@ func (t *Test) env() []string {
 // Get fetches the package and its dependencies
 func (t *Test) Get(pkg string) error {
 	cmd := exec.Command("go", "get", pkg)
-	cmd.Env = t.env()
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	t.prepareCmd(cmd)
 	return cmd.Run()
 }
 
 // Test runs the tests form the package
 func (t *Test) Test(pkg string) error {
 	cmd := exec.Command("go", "test", pkg)
-	cmd.Env = t.env()
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	t.prepareCmd(cmd)
 	return cmd.Run()
 }
 
 // Build builds the package
 func (t *Test) Build(pkg string) error {
 	cmd := exec.Command("go", "build", pkg)
-	cmd.Env = t.env()
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	t.prepareCmd(cmd)
 	return cmd.Run()
+}
+
+func (t *Test) prepareCmd(cmd *exec.Cmd) {
+	cmd.Env = t.env()
+	if t.Stdout != nil {
+		cmd.Stdout = t.Stdout
+	}
+	if t.Stderr != nil {
+		cmd.Stderr = t.Stderr
+	}
 }
