@@ -24,7 +24,7 @@ func (g *Local) List(pkg string, recursive bool) ([]string, error) {
 	}
 	args := []string{
 		searched,
-		"-RIsl",             // recursive, ignore binaries, no errors, only files
+		"-pRIsl",            // recursive, ignore binaries, no errors, only files
 		"--include", "*.go", // check only go source files
 		"--exclude-dir", "Godeps", "--exclude-dir", "vendor", // skip vendored deps
 	}
