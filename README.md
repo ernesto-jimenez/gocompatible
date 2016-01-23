@@ -1,13 +1,17 @@
-# gocompatible
+# gocompatible (WORK IN PROGRESS)
 
-`gocompatible` helps you check wheter some new developments in your
-package will the packages depending on it.
+Backwards compatibility is a big deal in Go, specially with the
+limitations around package versioning.
 
-When you have some changes to your open source package, `gocompatible`
-will look for other public packges depending on it and check whether
-those packages will be broken with your changes.
+`gocompatible` aims at helping you maintain your packages backwards
+compatible by testing your changes across all your dependents.
 
-This is COSI! (Continuous Open Source Integration)
+Our aim is to:
+
+ - Help you find what packages depend on yours.
+ - Automate testing of all the packages dependent on yours.
+ - Take a diff or a Pull Request and show whether any dependent packages
+   will get broken by those changes.
 
 ## Installation
 
@@ -67,7 +71,9 @@ gocompatible -godoc -pkg github.com/stretchr/testify/assert
 While developing [testify][testify] we sometimes need to evaluate whether a
 internal change could break the projects dependent on them.
 
-I decided it would be a nice project to prototype during gophergala.
+I decided it would be a nice project to prototype for this year's [Gopher
+Gala][gala].
 
 [testify]: https://github.com/stretchr/testify
 [godoc]: https://godoc.org
+[gala]: http://gophergala.com
