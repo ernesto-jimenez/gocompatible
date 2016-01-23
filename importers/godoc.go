@@ -18,6 +18,10 @@ type GoDoc struct {
 	// URL contains the url used to extract the information from.
 	// If empty it'll use https://godoc.org
 	URL string
+	// Path containing the dependents we want to list.
+	// e.g: Path: "github.com/ernesto-jimenez" will only return dependents within
+	// github.com/ernesto-jimenez
+	Path string
 }
 
 // List looks for dependent packages tracked by godoc.org
@@ -59,7 +63,7 @@ func (g *GoDoc) fetchImportersList(pkg string) ([]string, error) {
 	}
 	u.Path = "/" + pkg
 	u.RawQuery = "importers"
-	return fetchList(u.String())
+	return fetchList(u.String(), g.Path)
 }
 
 func (g *GoDoc) fetchSupackages(pkg string) ([]string, error) {
@@ -68,10 +72,10 @@ func (g *GoDoc) fetchSupackages(pkg string) ([]string, error) {
 		return nil, err
 	}
 	u.Path = "/" + pkg
-	return fetchList(u.String())
+	return fetchList(u.String(), pkg)
 }
 
-func fetchList(url string) ([]string, error) {
+func fetchList(url, prefix string) ([]string, error) {
 	res, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -83,6 +87,9 @@ func fetchList(url string) ([]string, error) {
 	list := []string{}
 	webdevdata.ProcessMatchingTagsReader(res.Body, "table a", func(node *html.Node) {
 		p := strings.TrimLeft(webdevdata.GetAttr("href", node.Attr), "/")
+		if !strings.HasPrefix(p, prefix) {
+			return
+		}
 		list = append(list, p)
 	})
 	return list, nil

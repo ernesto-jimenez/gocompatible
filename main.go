@@ -12,11 +12,12 @@ import (
 )
 
 var (
-	pkg       = flag.String("pkg", ".", "what package to check dependents")
-	subpkgs   = flag.Bool("subpkgs", false, "wether to search dependents from subpackages too")
-	godoc     = flag.Bool("godoc", false, "fetch dependents from godoc.org instead of locally")
-	localPath = flag.String("local-path", "", "whether to scope local search to certain paths")
-	print     = flag.Bool("print", false, "just print the list of dependents")
+	pkg     = flag.String("pkg", ".", "what package to check dependents")
+	subpkgs = flag.Bool("subpkgs", false, "wether to search dependents from subpackages too")
+	godoc   = flag.Bool("godoc", false, "fetch dependents from godoc.org instead of locally")
+	inPath  = flag.String("in-path", "", "scope dependencies within the given path")
+	print   = flag.Bool("print", false, "just print the list of dependents")
+	verbose = flag.Bool("v", false, "verbose output")
 
 	i importers.Lister
 )
@@ -24,9 +25,9 @@ var (
 func init() {
 	flag.Parse()
 	if *godoc {
-		i = &importers.GoDoc{}
+		i = &importers.GoDoc{Path: *inPath}
 	} else {
-		i = &importers.Local{Path: *localPath}
+		i = &importers.Local{Path: *inPath}
 	}
 }
 
@@ -39,7 +40,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("Importers for %s\n", pkg.ImportPath)
+	if *verbose {
+		fmt.Printf("Running gocompatible for %s\n", pkg.ImportPath)
+	}
 	list, err := i.List(pkg.ImportPath, *subpkgs)
 	if err != nil {
 		log.Fatal(err)
@@ -51,28 +54,30 @@ func main() {
 		os.Exit(0)
 	}
 	t, err := tester.NewTempTest()
+	if *verbose {
+		t.Stdout = os.Stdout
+		t.Stderr = os.Stderr
+	}
 	if err != nil {
 		log.Fatal(err)
 	}
 	for _, pkg := range list {
-		fmt.Println("##", pkg)
-		fmt.Printf(" - Getting... ")
 		if err := t.Get(pkg); err != nil {
-			fmt.Println("!!!ERROR", err)
+			fmt.Printf("%-7s %s - %s: %s\n", "FAIL", pkg, "go get", err)
 			continue
 		}
-		fmt.Println("OK")
-		fmt.Printf(" - Building... ")
 		if err := t.Build(pkg); err != nil {
-			fmt.Println("!!!ERROR", err)
+			fmt.Printf("%-7s %s - %s: %s\n", "FAIL", pkg, "go build", err)
 			continue
 		}
-		fmt.Println("OK")
-		fmt.Printf(" - Testing... ")
 		if err := t.Test(pkg); err != nil {
-			fmt.Println("!!!ERROR", err)
+			if !*verbose {
+				fmt.Printf("%-7s %s - %s: %s\n", "FAIL", pkg, "go test", err)
+			}
 			continue
 		}
-		fmt.Println("OK")
+		if !*verbose {
+			fmt.Printf("%-7s %s\n", "ok", pkg)
+		}
 	}
 }
