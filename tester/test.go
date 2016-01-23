@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path"
 	"strings"
 )
 
@@ -45,6 +46,7 @@ func (t *Test) Get(pkg string) error {
 // Test runs the tests form the package
 func (t *Test) Test(pkg string) error {
 	cmd := exec.Command("go", "test", pkg)
+	cmd.Dir = path.Join(t.Gopath, "src", pkg)
 	t.prepareCmd(cmd)
 	return cmd.Run()
 }
@@ -52,6 +54,7 @@ func (t *Test) Test(pkg string) error {
 // Build builds the package
 func (t *Test) Build(pkg string) error {
 	cmd := exec.Command("go", "build", pkg)
+	cmd.Dir = path.Join(t.Gopath, "src", pkg)
 	t.prepareCmd(cmd)
 	return cmd.Run()
 }
