@@ -1,12 +1,45 @@
 # gocompatible
 
-[Gopher Gala 2016][gala] entry from [@ernesto_jimenez][twitter].
+[Gopher Gala 2016][gala] entry from [@ernesto_jimenez][twitter]. It's
+aimed at testing backwards compatiblity with known dependent packages.
+It can also check your packages will still work once upgrading a
+dependency.
 
 You can try it out quickly using docker:
 
-```
+```bash
 docker pull quay.io/ernesto_jimenez/gocompatible
 docker run --rm quay.io/ernesto_jimenez/gocompatible gocompatible
+```
+
+Check the changes from testify v1.0 to v1.1.3 do not break any of the
+aws-go-sdk packages:
+
+```bash
+docker run --rm quay.io/ernesto_jimenez/gocompatible \
+        gocompatible diff github.com/stretchr/testify/... \
+        --filter github.com/aws \
+        --from v1.0 --to v1.1.1 \
+        --godoc --insecure
+FAIL    github.com/aws/aws-sdk-go/awstesting - go get: exit status 2
+0 skipped due to tests failing in v1.0
+1 packages 1 failed:    1 failed get    0 build    0 test
+```
+
+The `aws-sdk-go` broke in v1.1.1 due to a backwards incompatible change
+in `testify`. You can run the command with `-v` to get the output.
+
+Check the upgrade to v1.1.3:
+
+```bash
+docker run --rm quay.io/ernesto_jimenez/gocompatible \
+        gocompatible diff github.com/stretchr/testify/... \
+        --filter github.com/aws \
+        --from v1.0 --to v1.1.3 \
+        --godoc --insecure
+ok      github.com/aws/aws-sdk-go/awstesting
+0 skipped due to tests failing in v1.0
+1 packages 0 failed
 ```
 
 # Instructions
