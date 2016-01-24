@@ -35,9 +35,7 @@ func prepare(cmd *cobra.Command, args []string) (string, []string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if verbose {
-		log.Printf("Searching packages depending on %s", pkg)
-	}
+	debugf("Searching packages depending on %s", pkg)
 	list, err := dependents.List(pkg, recursive)
 	if err != nil {
 		log.Fatal(err)
