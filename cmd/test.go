@@ -12,7 +12,7 @@ import (
 
 // testCmd represents the test command
 var testCmd = &cobra.Command{
-	Use:   "test [options] [<commit>] [<package>]",
+	Use:   "test [options] [<package>]",
 	Short: "Run tests for all depending packages",
 	Long: `
 
@@ -47,7 +47,7 @@ gocompatible test github.com/stretchr/testify/assert \
   --godoc --insecure
 
 	`),
-	PersistentPreRun: requireInsecure,
+	PreRun: requireInsecure,
 	Run: func(cmd *cobra.Command, args []string) {
 		pkg, list := prepare(cmd, args)
 		t, err := tester.NewTempTest()

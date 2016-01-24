@@ -1,29 +1,10 @@
-// Copyright © 2016 Ernesto Jimenez <me@ernesto-jimenez.com>
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-
 package cmd
 
 import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/gophergala2016/gocompatible/importers"
@@ -57,6 +38,28 @@ _gocompatible_ helps you keep your packages backwards compatible:
 		testCmd.Example,
 		diffCmd.Example,
 	}, "\n\n"),
+
+	PersistentPreRun: func(command *cobra.Command, _ []string) {
+		if docker {
+			cmd := exec.Command("docker", strings.Split(
+				"run --rm quay.io/ernesto_jimenez/gocompatible:latest gocompatible", " ",
+			)...)
+			for _, arg := range os.Args[1:] {
+				if arg != "--docker" && arg != "-d" {
+					cmd.Args = append(cmd.Args, arg)
+				}
+			}
+			if command == testCmd || command == diffCmd {
+				cmd.Args = append(cmd.Args, "--insecure")
+			}
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+			err := cmd.Run()
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+	},
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
@@ -77,6 +80,7 @@ func init() {
 	RootCmd.PersistentFlags().StringVarP(&filter, "filter", "f", "", "select dependents within the given path")
 	RootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
 	RootCmd.PersistentFlags().BoolVarP(&recursive, "recurisve", "r", false, "check subpackages too")
+	RootCmd.PersistentFlags().BoolVarP(&docker, "docker", "d", false, "run the command in a docker container")
 }
 
 var (
@@ -86,6 +90,7 @@ var (
 	filter     string
 	recursive  bool
 	insecure   bool
+	docker     bool
 	dependents importers.Lister
 )
 
@@ -109,7 +114,13 @@ image you can use to do it quickly.
 
 Example:
 
-docker run --rm quay.io/ernesto_jimenez/gocompatible \
+gocompatible test github.com/stretchr/testify/assert \
+  --filter github.com/uber \
+  --godoc --docker
+
+Which is equivalent to:
+
+docker run --rm quay.io/ernesto_jimenez/gocompatible:latest \
   gocompatible test github.com/stretchr/testify/assert \
   --filter github.com/uber \
   --godoc --insecure

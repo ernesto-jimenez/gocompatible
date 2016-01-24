@@ -35,7 +35,7 @@ gocompatible diff github.com/stretchr/testify/... \
   --from v1.0 --to v1.1.1
 
 	`),
-	PersistentPreRun: requireInsecure,
+	PreRun: requireInsecure,
 	Run: func(cmd *cobra.Command, args []string) {
 		if from == "" {
 			log.Println("You must specify a --from")
