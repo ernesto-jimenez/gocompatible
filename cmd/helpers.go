@@ -11,6 +11,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
+func debugf(format string, v ...interface{}) {
+	if verbose {
+		log.Printf(format, v...)
+	}
+}
+
+func debugln(v ...interface{}) {
+	if verbose {
+		log.Println(v...)
+	}
+}
+
 func prepare(cmd *cobra.Command, args []string) (string, []string) {
 	p := "."
 	if len(args) > 1 {

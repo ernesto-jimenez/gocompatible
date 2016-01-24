@@ -49,5 +49,5 @@ func init() {
 	RootCmd.AddCommand(testCmd)
 	testCmd.Flags().BoolVar(&buildPkgs, "build", false, "Build packages")
 	testCmd.Flags().BoolVar(&insecure, "insecure", false, "Allows running testing packages from godoc")
-	testCmd.Flags().StringVarP(&checkout, "checkout", "c", "HEAD", "The commit/tag/branch of the tested package we want to checkout")
+	testCmd.Flags().StringVarP(&checkout, "checkout", "c", "master", "The commit/tag/branch of the tested package we want to checkout")
 }
