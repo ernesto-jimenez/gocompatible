@@ -29,7 +29,6 @@ func TestGoDoc(t *testing.T) {
 			expectedResult: []string{
 				"bitbucket.org/pcas/math/testing/assert",
 				"github.com/Billups/testify",
-				"github.com/Billups/testify/mock",
 			},
 		},
 		{
@@ -39,15 +38,9 @@ func TestGoDoc(t *testing.T) {
 			expectedResult: []string{
 				"bitbucket.org/pcas/math/testing/assert",
 				"github.com/Billups/testify",
-				"github.com/Billups/testify/mock",
+				"github.com/Clever/optimus/tests",
 				"github.com/EluctariLLC/dropbox",
 				"github.com/Fiery/testify",
-				"github.com/Fiery/testify/mock",
-				"github.com/Billups/testify/require",
-				"github.com/Billups/testify/suite",
-				"github.com/Clever/optimus/tests",
-				"github.com/Fiery/testify/require",
-				"github.com/Fiery/testify/suite",
 			},
 		},
 		{
