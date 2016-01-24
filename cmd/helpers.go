@@ -47,17 +47,7 @@ func prepare(cmd *cobra.Command, args []string) (string, []string) {
 
 func requireInsecure(*cobra.Command, []string) {
 	if godoc && !insecure {
-		log.Fatal(`DANGEROUS ACTION!
-
-Running tests from packages fetched from godoc is
-dangerous. You will be basically running untrusted
-code downloaded from the internet.
-
-You should run gocompatible within a docker containr
-or use the --filter option to just run tests from
-trusted sources.
-
-In order to run this command with --godoc use --godoc --insecure`)
+		log.Fatalf("DANGEROUS ACTION!\n\n%s", securityInstructions)
 	}
 }
 

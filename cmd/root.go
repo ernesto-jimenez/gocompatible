@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/gophergala2016/gocompatible/importers"
 	"github.com/spf13/cobra"
@@ -33,17 +34,29 @@ var cfgFile string
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
-	Use: "gocompatible",
-	//Short: "A brief description of your application",
-	//Long: `A longer description that spans multiple lines and likely contains
-	//examples and usage of using your application. For example:
+	Use:   "gocompatible",
+	Short: "Find dependent packages and run their tests to ensure backwards compatibility",
 
-	//Cobra is a CLI library for Go that empowers applications.
-	//This application is a tool to generate the needed files
-	//to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
+	Long: `
+
+Backwards compatibility is really important in Go, specially with the
+limitations around package versioning.
+
+_gocompatible_ helps you keep your packages backwards compatible:
+
+ - Find packages that depend on yours from your GOPATH or from godoc.org
+ - Run tests from all the packages depending on yours
+ - Check whether any dependeng packages break on different revisions
+
+# Security
+
+` + securityInstructions,
+
+	Example: strings.Join([]string{
+		dependentsCmd.Example,
+		testCmd.Example,
+		diffCmd.Example,
+	}, "\n\n"),
 }
 
 // Execute adds all child commands to the root command sets flags appropriately.
@@ -59,11 +72,11 @@ func init() {
 	log.SetFlags(0)
 	cobra.OnInitialize(initDependents)
 
-	RootCmd.PersistentFlags().BoolVarP(&local, "local", "l", true, "Find dependents in your $GOPATH")
-	RootCmd.PersistentFlags().BoolVar(&godoc, "godoc", false, "Find dependents in godoc.org")
-	RootCmd.PersistentFlags().StringVarP(&filter, "filter", "f", "", "Filter dependents within the given path")
-	RootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose output")
-	RootCmd.PersistentFlags().BoolVarP(&recursive, "recurisve", "r", false, "Check subpackages too")
+	RootCmd.PersistentFlags().BoolVarP(&local, "local", "l", true, "find dependents in your $GOPATH")
+	RootCmd.PersistentFlags().BoolVar(&godoc, "godoc", false, "find dependents in godoc.org")
+	RootCmd.PersistentFlags().StringVarP(&filter, "filter", "f", "", "select dependents within the given path")
+	RootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
+	RootCmd.PersistentFlags().BoolVarP(&recursive, "recurisve", "r", false, "check subpackages too")
 }
 
 var (
@@ -83,3 +96,22 @@ func initDependents() {
 		dependents = &importers.Local{Path: filter}
 	}
 }
+
+var securityInstructions = strings.TrimSpace(`
+
+Never run _test_ or _diff_ commands with --godoc
+in your machine. This will download untrusted code
+and run it, which is very dangerous.
+
+You must always run those commands within an
+issolated container. We've published a docker
+image you can use to do it quickly.
+
+Example:
+
+docker run --rm quay.io/ernesto_jimenez/gocompatible \
+  gocompatible test github.com/stretchr/testify/assert \
+  --filter github.com/uber \
+  --godoc --insecure
+
+`)

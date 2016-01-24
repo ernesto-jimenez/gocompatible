@@ -40,7 +40,7 @@ func (r RunResult) String() string {
 		return fmt.Sprintf("%d packages %d failed", total, failed)
 	}
 	return fmt.Sprintf(
-		"%d packages %d failed: %4d failed get %4d build %4d test",
+		"%d packages %d failed: %4d failed `go get` %4d failed `go build` %4d failed `go test`",
 		total, failed,
 		len(r.FailedGet), len(r.FailedBuild), len(r.FailedTests),
 	)

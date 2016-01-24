@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/gophergala2016/gocompatible/tester"
 	"github.com/spf13/cobra"
@@ -11,9 +12,29 @@ import (
 
 // diffCmd represents the diff command
 var diffCmd = &cobra.Command{
-	Use:              "diff [options] --from <commit> [<package>]",
-	Short:            "Compare what depending packages break between two diffent revisions",
-	Long:             ``,
+	Use:   "diff [options] --from <commit> [<package>]",
+	Short: "Compare what depending packages break between two diffent revisions",
+	Long: `
+
+This is incredibly useful to find whether your new changes will break any
+dependents.
+
+_gocompatible_ will checkout the --from version, run the tests, and run the
+tests again for --to.
+
+Packages failing in --from are discarded from the --to run, so _gocompatible_
+will only fail if the changes in --to break any package that worked in --from.
+
+	`,
+	Example: strings.TrimSpace(`
+
+# Check whether changes between testify v1.0 and
+# v1.1.1 broke any tests in aws-sdk-go
+gocompatible diff github.com/stretchr/testify/... \
+  --filter github.com/aws/aws-sdk-go/awstesting \
+  --from v1.0 --to v1.1.1
+
+	`),
 	PersistentPreRun: requireInsecure,
 	Run: func(cmd *cobra.Command, args []string) {
 		if from == "" {
@@ -58,7 +79,7 @@ var diffCmd = &cobra.Command{
 		}
 		debugf("Runin tests from %s", to)
 		res = tester.Run(t, res.OK, os.Stdout)
-		log.Printf("%d skipped due to tests failing in %s", skipped, from)
+		log.Printf("%d packages skipped due to tests failing in %s", skipped, from)
 		if err := res.Err(); err != nil {
 			log.Fatal(err)
 		}
@@ -73,8 +94,8 @@ var (
 
 func init() {
 	RootCmd.AddCommand(diffCmd)
-	diffCmd.Flags().BoolVar(&buildPkgs, "build", false, "Build packages")
-	diffCmd.Flags().BoolVar(&insecure, "insecure", false, "Allows running testing packages from godoc")
-	diffCmd.Flags().StringVarP(&from, "from", "c", "", "The commit/tag/branch of <package> to checkout and select only the packages with green builds")
-	diffCmd.Flags().StringVarP(&to, "to", "t", "master", "The commit/tag/branch of the tested package we want to compare with from to see how many packages broke")
+	diffCmd.Flags().BoolVar(&buildPkgs, "build", false, "build packages")
+	diffCmd.Flags().BoolVar(&insecure, "insecure", false, "allows running testing packages from godoc")
+	diffCmd.Flags().StringVarP(&from, "from", "c", "", "commit/tag/branch of <package> to checkout and select only the packages with green builds")
+	diffCmd.Flags().StringVarP(&to, "to", "t", "master", "commit/tag/branch of the tested package we want to compare with from to see how many packages broke")
 }
