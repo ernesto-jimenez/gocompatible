@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"path"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -65,10 +66,9 @@ func TestGoDoc(t *testing.T) {
 }
 
 func handleTestRequest(rw http.ResponseWriter, req *http.Request) {
-	base := path.Base(req.URL.Path)
-	file := base + ".html"
-	if suffix := req.URL.RawQuery; suffix != "" {
-		file = base + "-" + suffix + ".html"
+	file := path.Base(req.URL.Path) + ".html"
+	if strings.HasPrefix(req.URL.Path, "/importers/") {
+		file = path.Base(req.URL.Path) + "-importers.json"
 	}
 	http.ServeFile(rw, req, path.Join("testdata", file))
 }

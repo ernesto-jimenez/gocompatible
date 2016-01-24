@@ -3,6 +3,7 @@
 package importers
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -15,10 +16,10 @@ import (
 )
 
 // GoDoc is used to extract importers information from the godoc website.
-// By default information is extracted from https://godoc.org
+// By default information is extracted from http://godoc.org
 type GoDoc struct {
 	// URL contains the url used to extract the information from.
-	// If empty it'll use https://godoc.org
+	// If empty it'll use http://godoc.org
 	URL string
 	// Path containing the dependents we want to list.
 	// e.g: Path: "github.com/ernesto-jimenez" will only return dependents within
@@ -53,7 +54,7 @@ func (g *GoDoc) List(pkg string, recursive bool) ([]string, error) {
 func (g *GoDoc) url() (*url.URL, error) {
 	u := g.URL
 	if g.URL == "" {
-		u = "https://godoc.org"
+		u = "http://godoc.org"
 	}
 	return url.Parse(u)
 }
@@ -63,9 +64,34 @@ func (g *GoDoc) fetchImportersList(pkg string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	u.Path = "/" + pkg
-	u.RawQuery = "importers"
-	return fetchList(u.String(), g.Path)
+	if u.Host == "godoc.org" {
+		u.Host = "api.godoc.org"
+	}
+	u.Path = "/importers/" + pkg
+	res, err := http.Get(u.String())
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	if res.StatusCode != 200 {
+		return nil, fmt.Errorf("failed to fetch %s - %s", u.String(), res.Status)
+	}
+	j := struct {
+		Results []struct {
+			Path string `json:"path"`
+		} `json:"results"`
+	}{}
+	err = json.NewDecoder(res.Body).Decode(&j)
+	if err != nil {
+		return nil, fmt.Errorf("failed decoding json response from %s - %s", u.String(), err)
+	}
+	list := []string{}
+	for _, result := range j.Results {
+		if g.Path == "" || strings.HasPrefix(result.Path, g.Path) {
+			list = append(list, result.Path)
+		}
+	}
+	return list, nil
 }
 
 func (g *GoDoc) fetchSupackages(pkg string) ([]string, error) {
