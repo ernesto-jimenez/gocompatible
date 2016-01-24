@@ -54,7 +54,7 @@ in your machine. This will download untrusted code
 and run it, which is very dangerous.
 
 You must always run those commands within an
-issolated container. We've published a docker
+isolated container. We've published a docker
 image you can use to do it quickly.
 
 Example:
@@ -93,7 +93,7 @@ in your machine. This will download untrusted code
 and run it, which is very dangerous.
 
 You must always run those commands within an
-issolated container. We've published a docker
+isolated container. We've published a docker
 image you can use to do it quickly.
 
 Example:
