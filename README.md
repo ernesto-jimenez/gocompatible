@@ -42,6 +42,38 @@ ok      github.com/aws/aws-sdk-go/awstesting
 1 packages 0 failed
 ```
 
+Since executing code from random people in the internet is not a good
+idea `gocompatible` comes with safeguards:
+
+```bash
+$ gocompatible test --godoc github.com/stretchr/testify/...
+DANGEROUS ACTION!
+
+Never run _test_ or _diff_ commands with --godoc
+in your machine. This will download untrusted code
+and run it, which is very dangerous.
+
+You must always run those commands within an
+issolated container. We've published a docker
+image you can use to do it quickly.
+
+Example:
+
+gocompatible test github.com/stretchr/testify/assert \
+  --filter github.com/uber \
+  --godoc --docker
+
+Which is equivalent to:
+
+docker run --rm quay.io/ernesto_jimenez/gocompatible:latest \
+  gocompatible test github.com/stretchr/testify/assert \
+  --filter github.com/uber \
+  --godoc --insecure
+```
+
+`gocompatible` always prepares a new `GOPATH` in a temporary directory
+and works there to avoid polluting yours.
+
 # Instructions
 
 ```txt
