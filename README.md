@@ -1,4 +1,6 @@
-# gocompatible (WORK IN PROGRESS)
+# gocompatible
+
+[Gopher Gala 2016][gala] entry from [@ernesto_jimenez][twitter].
 
 ```txt
 Backwards compatibility is really important in Go, specially with the
@@ -130,3 +132,4 @@ Gala][gala].
 [testify]: https://github.com/stretchr/testify
 [godoc]: https://godoc.org
 [gala]: http://gophergala.com
+[twitter]: https://twitter.com/ernesto_jimenez
