@@ -26,26 +26,26 @@ type GoDoc struct {
 
 // List looks for dependent packages tracked by godoc.org
 func (g *GoDoc) List(pkg string, recursive bool) ([]string, error) {
-	list := []string{}
+	list := deduplist(make(map[string]bool))
 	pkgs := []string{pkg}
 	for len(pkgs) > 0 {
 		pkg := pkgs[0]
 		pkgs = pkgs[1:]
 		l, err := g.fetchImportersList(pkg)
 		if err != nil {
-			return list, err
+			return nil, err
 		}
-		list = append(list, l...)
+		list.add(l...)
 		if !recursive {
 			continue
 		}
 		l, err = g.fetchSupackages(pkg)
 		if err != nil {
-			return list, err
+			return nil, err
 		}
 		pkgs = append(pkgs, l...)
 	}
-	return list, nil
+	return list.list(), nil
 }
 
 func (g *GoDoc) url() (*url.URL, error) {
