@@ -2,10 +2,11 @@ package tester
 
 import (
 	"flag"
-	"github.com/stretchr/testify/require"
 	"io/ioutil"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 var gopath string
@@ -21,9 +22,12 @@ func TestFailsWithoutGopath(t *testing.T) {
 func TestPasses(t *testing.T) {
 	pkg := "github.com/stretchr/testify"
 	tester := &Test{Gopath: gopath}
+	tester.Stdout = os.Stdout
+	tester.Stderr = os.Stderr
 
-	require.NoError(t, tester.Get(pkg))
-	require.NoError(t, tester.Test(pkg))
+	require.NoError(t, tester.Get(pkg), "should get package")
+	require.NoError(t, tester.Build(pkg), "package should build")
+	require.NoError(t, tester.Test(pkg), "should pass tests")
 }
 
 func TestGetFailsWithUnknownPackage(t *testing.T) {

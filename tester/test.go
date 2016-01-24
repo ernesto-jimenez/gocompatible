@@ -43,7 +43,7 @@ func (t *Test) Get(pkg string) error {
 	if err := cmd.Run(); err != nil {
 		return err
 	}
-	cmd = exec.Command("go", "get", "./...")
+	cmd = exec.Command("go", "get", "-t", "./...")
 	cmd.Dir = path.Join(t.Gopath, "src", pkg)
 	t.prepareCmd(cmd)
 	return cmd.Run()

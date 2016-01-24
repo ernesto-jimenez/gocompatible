@@ -11,17 +11,25 @@ import (
 
 // testCmd represents the test command
 var testCmd = &cobra.Command{
-	Use:   "test",
+	Use:   "test [options] [<commit>] [<package>]",
 	Short: "Run tests for all depending packages",
 	//Long: ``,
 	PersistentPreRun: requireInsecure,
 	Run: func(cmd *cobra.Command, args []string) {
-		_, list := prepare(cmd, args)
+		pkg, list := prepare(cmd, args)
 		t, err := tester.NewTempTest()
+		if err != nil {
+			log.Fatal(err)
+		}
 		if verbose {
 			t.Stdout = os.Stdout
 			t.Stderr = os.Stderr
 		}
+		err = t.Get(pkg)
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = t.Checkout(pkg, checkout)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -35,8 +43,11 @@ var testCmd = &cobra.Command{
 
 var buildPkgs bool
 
+var checkout string
+
 func init() {
 	RootCmd.AddCommand(testCmd)
 	testCmd.Flags().BoolVar(&buildPkgs, "build", false, "Build packages")
 	testCmd.Flags().BoolVar(&insecure, "insecure", false, "Allows running testing packages from godoc")
+	testCmd.Flags().StringVarP(&checkout, "checkout", "c", "HEAD", "The commit/tag/branch of the tested package we want to checkout")
 }
