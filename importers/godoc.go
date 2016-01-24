@@ -4,10 +4,12 @@ package importers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
 
+	"github.com/andybalholm/cascadia"
 	"github.com/webdevdata/webdevdata-tools/webdevdata"
 	"golang.org/x/net/html"
 )
@@ -85,8 +87,21 @@ func fetchList(url, prefix string) ([]string, error) {
 		return nil, fmt.Errorf("failed to fetch %s - %s", url, res.Status)
 	}
 	list := []string{}
-	webdevdata.ProcessMatchingTagsReader(res.Body, "table a", func(node *html.Node) {
-		p := strings.TrimLeft(webdevdata.GetAttr("href", node.Attr), "/")
+	selector := cascadia.MustCompile("a")
+	webdevdata.ProcessMatchingTagsReader(res.Body, "table tbody tr > td:first-of-type", func(node *html.Node) {
+		pkg := ""
+		link := selector.MatchFirst(node)
+		if link != nil {
+			pkg = webdevdata.GetAttr("href", link.Attr)
+		} else if node.FirstChild != nil && node.FirstChild.Type == html.TextNode {
+			pkg = node.FirstChild.Data
+		} else if node.FirstChild != nil && node.FirstChild.Data == "b" {
+			return
+		}
+		if pkg == "" {
+			log.Fatal("markup from godoc.org changed")
+		}
+		p := strings.TrimLeft(pkg, "/")
 		if !strings.HasPrefix(p, prefix) {
 			return
 		}
