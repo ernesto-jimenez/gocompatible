@@ -108,13 +108,10 @@ ok      github.com/raphael/goa-cellar
 FAIL    github.com/raphael/goa-middleware/cors - go test: exit status 1
 ok      github.com/raphael/goa-middleware/gzip
 FAIL    github.com/raphael/goa-middleware/jwt - go test: exit status 1
-FAIL    github.com/raphael/goa-middleware/middleware - go get: exit
-status 1
+FAIL    github.com/raphael/goa-middleware/middleware - go get: exit status 1
 FAIL    github.com/raphael/goa/examples/cellar - go get: exit status 1
-FAIL    github.com/deferpanic/dpgoa/example/client/deferpanic-cli - go
-get: exit status 1
-FAIL    github.com/raphael/goa/examples/cellar/swagger - go get: exit
-status 1
+FAIL    github.com/deferpanic/dpgoa/example/client/deferpanic-cli - go get: exit status 1
+FAIL    github.com/raphael/goa/examples/cellar/swagger - go get: exit status 1
 12 packages 8 failed:    6 failed get    0 build    2 test
 ```
 
