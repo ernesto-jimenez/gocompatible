@@ -2,6 +2,7 @@ package importers
 
 import (
 	"sort"
+	"strings"
 )
 
 type deduplist map[string]bool
@@ -17,10 +18,19 @@ func (d deduplist) add(path string) {
 }
 
 func (d deduplist) list() []string {
-	list := []string{}
+	var list []string
 	for path := range d {
 		list = append(list, path)
 	}
 	sort.Sort(sorted(list))
-	return list
+	last := "!"
+	filtered := []string{}
+	for _, pkg := range list {
+		if strings.HasPrefix(pkg, last) {
+			continue
+		}
+		filtered = append(filtered, pkg)
+		last = pkg
+	}
+	return filtered
 }
