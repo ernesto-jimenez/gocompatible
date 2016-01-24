@@ -25,9 +25,11 @@ import (
 	"go/build"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/gophergala2016/gocompatible/importers"
+	"github.com/gophergala2016/gocompatible/util"
 	"github.com/spf13/cobra"
 )
 
@@ -102,9 +104,9 @@ func initDependents() {
 	}
 }
 
-func importPath(path string) (string, error) {
+func importPath(p string) (string, error) {
 	var clean string
-	if clean = strings.TrimSuffix(path, "/..."); path != clean {
+	if clean = strings.TrimSuffix(p, "/..."); p != clean {
 		recursive = true
 	}
 	cwd, err := os.Getwd()
@@ -112,8 +114,14 @@ func importPath(path string) (string, error) {
 		return "", err
 	}
 	pkg, err := build.Import(clean, cwd, build.FindOnly)
-	if err != nil {
+	if err == nil {
+		return pkg.ImportPath, nil
+	}
+	if !godoc {
 		return "", err
 	}
-	return pkg.ImportPath, nil
+	if strings.HasPrefix(clean, ".") {
+		clean, _ = filepath.Abs(clean)
+	}
+	return util.StripGopath(clean), nil
 }
