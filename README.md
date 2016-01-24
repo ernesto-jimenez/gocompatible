@@ -7,7 +7,7 @@ dependency.
 
 You can try it out quickly using docker:
 
-```bash
+```txt
 docker pull quay.io/ernesto_jimenez/gocompatible
 docker run --rm quay.io/ernesto_jimenez/gocompatible gocompatible
 ```
@@ -15,7 +15,7 @@ docker run --rm quay.io/ernesto_jimenez/gocompatible gocompatible
 Check the changes from testify v1.0 to v1.1.3 do not break any of the
 aws-go-sdk packages:
 
-```bash
+```txt
 docker run --rm quay.io/ernesto_jimenez/gocompatible \
         gocompatible diff github.com/stretchr/testify/... \
         --filter github.com/aws \
@@ -31,7 +31,7 @@ in `testify`. You can run the command with `-v` to get the output.
 
 Check the upgrade to v1.1.3:
 
-```bash
+```txt
 docker run --rm quay.io/ernesto_jimenez/gocompatible \
         gocompatible diff github.com/stretchr/testify/... \
         --filter github.com/aws \
@@ -45,7 +45,7 @@ ok      github.com/aws/aws-sdk-go/awstesting
 Since executing code from random people in the internet is not a good
 idea `gocompatible` comes with safeguards:
 
-```bash
+```txt
 $ gocompatible test --godoc github.com/stretchr/testify/...
 DANGEROUS ACTION!
 
