@@ -2,6 +2,15 @@
 
 [Gopher Gala 2016][gala] entry from [@ernesto_jimenez][twitter].
 
+You can try it out quickly using docker:
+
+```
+docker pull quay.io/ernesto_jimenez/gocompatible
+docker run --rm quay.io/ernesto_jimenez/gocompatible gocompatible
+```
+
+# Instructions
+
 ```txt
 Backwards compatibility is really important in Go, specially with the
 limitations around package versioning.
@@ -24,7 +33,13 @@ image you can use to do it quickly.
 
 Example:
 
-docker run --rm quay.io/ernesto_jimenez/gocompatible \
+gocompatible test github.com/stretchr/testify/assert \
+  --filter github.com/uber \
+  --godoc --docker
+
+Which is equivalent to:
+
+docker run --rm quay.io/ernesto_jimenez/gocompatible:latest \
   gocompatible test github.com/stretchr/testify/assert \
   --filter github.com/uber \
   --godoc --insecure
@@ -48,7 +63,8 @@ gocompatible dependents --godoc github.com/stretchr/testify/...
 # Run test for all packages in GOPATH dependent on testify/assert
 gocompatible test github.com/stretchr/testify/assert
 
-# Run tests from all uber packages tracked by godoc.org as dependent on testify/assert
+# Run tests from all uber packages tracked by godoc.org as dependent
+on testify/assert
 gocompatible test github.com/stretchr/testify/assert \
   --filter github.com/uber \
   --godoc --insecure
@@ -60,11 +76,14 @@ gocompatible diff github.com/stretchr/testify/... \
   --from v1.0 --to v1.1.1
 
 Available Commands:
-  dependents  List all packages we can find depending on the given package
-  diff        Compare what depending packages break between two diffent revisions
+  dependents  List all packages we can find depending on the given
+package
+  diff        Compare what depending packages break between two diffent
+revisions
   test        Run tests for all depending packages
 
 Flags:
+  -d, --docker          run the command in a docker container
   -f, --filter string   select dependents within the given path
       --godoc           find dependents in godoc.org
   -h, --help            help for gocompatible
@@ -72,8 +91,10 @@ Flags:
   -r, --recurisve       check subpackages too
   -v, --verbose         verbose output
 
-Use "gocompatible [command] --help" for more information about a command.
+Use "gocompatible [command] --help" for more information about a
+command.
 ```
+
 ## Installation
 
 ```
