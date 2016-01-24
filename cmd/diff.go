@@ -94,7 +94,6 @@ var (
 
 func init() {
 	RootCmd.AddCommand(diffCmd)
-	diffCmd.Flags().BoolVar(&buildPkgs, "build", false, "build packages")
 	diffCmd.Flags().BoolVar(&insecure, "insecure", false, "allows running testing packages from godoc")
 	diffCmd.Flags().StringVarP(&from, "from", "c", "", "commit/tag/branch of <package> to checkout and select only the packages with green builds")
 	diffCmd.Flags().StringVarP(&to, "to", "t", "master", "commit/tag/branch of the tested package we want to compare with from to see how many packages broke")

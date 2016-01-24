@@ -222,12 +222,9 @@ gocompatible diff github.com/stretchr/testify/... \
   --from v1.0 --to v1.1.1
 
 Flags:
-      --build         build packages
-  -c, --from string   commit/tag/branch of <package> to checkout and
-select only the packages with green builds
+  -c, --from string   commit/tag/branch of <package> to checkout and select only the packages with green builds
       --insecure      allows running testing packages from godoc
-  -t, --to string     commit/tag/branch of the tested package we want to
-compare with from to see how many packages broke (default "master")
+  -t, --to string     commit/tag/branch of the tested package we want to compare with from to see how many packages broke (default "master")
 
 Global Flags:
   -d, --docker          run the command in a docker container
@@ -276,7 +273,6 @@ gocompatible test github.com/stretchr/testify/assert \
   --godoc --insecure
 
 Flags:
-      --build             Build packages
   -c, --checkout string   The commit/tag/branch of the tested package we
 want to checkout (default "master")
       --insecure          Allows running testing packages from godoc
