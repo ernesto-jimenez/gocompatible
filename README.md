@@ -26,10 +26,8 @@ Usage:
   gocompatible [command]
 
 Available Commands:
-  dependents  List all packages we can find depending on the given
-package
-  diff        Compare what depending packages break between two diffent
-revisions
+  dependents  List all packages we can find depending on the given package
+  diff        Compare what depending packages break between two diffent revisions
   test        Run tests for all depending packages
 
 Flags:
