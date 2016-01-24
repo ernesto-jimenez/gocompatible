@@ -1,83 +1,27 @@
+// Copyright © 2016 Ernesto Jimenez <me@ernesto-jimenez.com>
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
 package main
 
-import (
-	"flag"
-	"fmt"
-	"go/build"
-	"log"
-	"os"
-
-	"github.com/gophergala2016/gocompatible/importers"
-	"github.com/gophergala2016/gocompatible/tester"
-)
-
-var (
-	pkg     = flag.String("pkg", ".", "what package to check dependents")
-	subpkgs = flag.Bool("subpkgs", false, "wether to search dependents from subpackages too")
-	godoc   = flag.Bool("godoc", false, "fetch dependents from godoc.org instead of locally")
-	inPath  = flag.String("in-path", "", "scope dependencies within the given path")
-	print   = flag.Bool("print", false, "just print the list of dependents")
-	verbose = flag.Bool("v", false, "verbose output")
-
-	i importers.Lister
-)
-
-func init() {
-	flag.Parse()
-	if *godoc {
-		i = &importers.GoDoc{Path: *inPath}
-	} else {
-		i = &importers.Local{Path: *inPath}
-	}
-}
+import "github.com/gophergala2016/gocompatible/cmd"
 
 func main() {
-	cwd, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-	pkg, err := build.Import(*pkg, cwd, build.FindOnly)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if *verbose {
-		fmt.Printf("Running gocompatible for %s\n", pkg.ImportPath)
-	}
-	list, err := i.List(pkg.ImportPath, *subpkgs)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if *print {
-		for _, l := range list {
-			fmt.Println(l)
-		}
-		os.Exit(0)
-	}
-	t, err := tester.NewTempTest()
-	if *verbose {
-		t.Stdout = os.Stdout
-		t.Stderr = os.Stderr
-	}
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, pkg := range list {
-		if err := t.Get(pkg); err != nil {
-			fmt.Printf("%-7s %s - %s: %s\n", "FAIL", pkg, "go get", err)
-			continue
-		}
-		if err := t.Build(pkg); err != nil {
-			fmt.Printf("%-7s %s - %s: %s\n", "FAIL", pkg, "go build", err)
-			continue
-		}
-		if err := t.Test(pkg); err != nil {
-			if !*verbose {
-				fmt.Printf("%-7s %s - %s: %s\n", "FAIL", pkg, "go test", err)
-			}
-			continue
-		}
-		if !*verbose {
-			fmt.Printf("%-7s %s\n", "ok", pkg)
-		}
-	}
+	cmd.Execute()
 }

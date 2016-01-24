@@ -38,14 +38,20 @@ func (t *Test) env() []string {
 
 // Get fetches the package and its dependencies
 func (t *Test) Get(pkg string) error {
-	cmd := exec.Command("go", "get", pkg)
+	cmd := exec.Command("go", "get", "-d", "-t", pkg)
+	t.prepareCmd(cmd)
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+	cmd = exec.Command("go", "get", "./...")
+	cmd.Dir = path.Join(t.Gopath, "src", pkg)
 	t.prepareCmd(cmd)
 	return cmd.Run()
 }
 
 // Test runs the tests form the package
 func (t *Test) Test(pkg string) error {
-	cmd := exec.Command("go", "test", pkg)
+	cmd := exec.Command("go", "test", "./...")
 	cmd.Dir = path.Join(t.Gopath, "src", pkg)
 	t.prepareCmd(cmd)
 	return cmd.Run()
@@ -53,7 +59,7 @@ func (t *Test) Test(pkg string) error {
 
 // Build builds the package
 func (t *Test) Build(pkg string) error {
-	cmd := exec.Command("go", "build", pkg)
+	cmd := exec.Command("go", "build", "./...")
 	cmd.Dir = path.Join(t.Gopath, "src", pkg)
 	t.prepareCmd(cmd)
 	return cmd.Run()

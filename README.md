@@ -3,8 +3,8 @@
 Backwards compatibility is a big deal in Go, specially with the
 limitations around package versioning.
 
-`gocompatible` aims at helping you maintain your packages backwards
-compatible by testing your changes across all your dependents.
+`gocompatible` helps you keep your packages backwards compatible by
+testing your changes across all your dependents.
 
 Our aim is to:
 
@@ -21,37 +21,52 @@ go get github.com/gophergala2016/gocompatible
 
 ## Usage
 
-Print a list of all packages from my GOPATH dependent on the package in
-my current directory:
+```txt
+Usage:
+  gocompatible [command]
 
+Available Commands:
+  dependents  List all packages we can find depending on the given package
+  test        Run tests for all depending packages
+
+Flags:
+  -f, --filter string   Filter dependents within the given path
+      --godoc           Find dependents in godoc.org
+  -h, --help            help for gocompatible
+  -l, --local           Find dependents in your $GOPATH (default true)
+  -r, --recurisve       Check subpackages too
+  -v, --verbose         Verbose output
+
+Use "gocompatible [command] --help" for more information about a
+command.
 ```
-gocompatible -print
-```
+
+## Examples
 
 Find all packages from my GOPATH dependent on the package in the
 current working directory and test all of them:
 
 ```
-gocompatible
+gocompatible dependents
 ```
 
 Find all packages from my GOPATH dependent on
 `github.com/stretchr/testify/assert` and test them:
 
 ```
-gocompatible -pkg github.com/stretchr/testify/assert
+gocompatible dependents github.com/stretchr/testify/assert
 ```
 
 List all dependent packages depedent on `assert` tracked by [godoc.org][godoc].
 
 ```
-gocompatible -godoc -print -pkg github.com/stretchr/testify/assert
+gocompatible dependents --godoc github.com/stretchr/testify/assert
 ```
 
 List all dependent packages depedent on `testify`'s packages tracked by [godoc.org][godoc].
 
 ```
-gocompatible -godoc -print -pkg github.com/stretchr/testify -subpkgs
+gocompatible dependents -r --godoc github.com/stretchr/testify
 ```
 
 Find and test all packages depedent on `assert` tracked by
@@ -59,7 +74,7 @@ Find and test all packages depedent on `assert` tracked by
 random internet code pulled from the internet in your machine**.
 
 ```
-gocompatible -godoc -pkg github.com/stretchr/testify/assert
+gocompatible test --godoc --insecure github.com/stretchr/testify/assert
 ```
 
 # Todo
