@@ -26,7 +26,10 @@ Usage:
   gocompatible [command]
 
 Available Commands:
-  dependents  List all packages we can find depending on the given package
+  dependents  List all packages we can find depending on the given
+package
+  diff        Compare what depending packages break between two diffent
+revisions
   test        Run tests for all depending packages
 
 Flags:
@@ -47,26 +50,26 @@ Find all packages from my GOPATH dependent on the package in the
 current working directory and test all of them:
 
 ```
-gocompatible dependents
+$ gocompatible dependents
 ```
 
 Find all packages from my GOPATH dependent on
 `github.com/stretchr/testify/assert` and test them:
 
 ```
-gocompatible dependents github.com/stretchr/testify/assert
+$ gocompatible dependents github.com/stretchr/testify/assert
 ```
 
 List all dependent packages depedent on `assert` tracked by [godoc.org][godoc].
 
 ```
-gocompatible dependents --godoc github.com/stretchr/testify/assert
+$ gocompatible dependents --godoc github.com/stretchr/testify/assert
 ```
 
 List all dependent packages depedent on `testify`'s packages tracked by [godoc.org][godoc].
 
 ```
-gocompatible dependents -r --godoc github.com/stretchr/testify
+$ gocompatible dependents --godoc github.com/stretchr/testify/...
 ```
 
 Find and test all packages depedent on `assert` tracked by
@@ -74,7 +77,45 @@ Find and test all packages depedent on `assert` tracked by
 random internet code pulled from the internet in your machine**.
 
 ```
-gocompatible test --godoc --insecure github.com/stretchr/testify/assert
+$ gocompatible test --godoc --insecure github.com/stretchr/testify/assert
+```
+
+
+```
+$ gocompatible diff github.com/stretchr/testify/... --filter github.com/aws/aws-sdk-go/awstesting/integration --from v1.0 --to v1.1.1
+ok
+github.com/aws/aws-sdk-go/awstesting/integration/customizations/s3
+FAIL    github.com/aws/aws-sdk-go/awstesting/integration/smoke - go get:
+exit status 2
+0 skipped due to tests failing in v1.0
+2 packages 1 failed:    1 failed get    0 build    0 test
+```
+
+# Using gocompatible test/diff within docker
+
+You must not simply run `gocompile test --godoc` or `gocompile diff --godoc`
+from your computer since you will be running code from random people on
+the internet. Instead, you can use our docker image to run
+`gocompatible` within a container.
+
+```
+$ docker run --rm quay.io/ernesto_jimenez/gocompatible gocompatible test github.com/raphael/goa --godoc --insecure
+FAIL    github.com/deferpanic/dpgoa/example - go get: exit status 2
+ok      github.com/deferpanic/dpgoa/middleware
+ok      github.com/goadesign/goa-cellar
+FAIL    github.com/gopheracademy/congo - go get: exit status 2
+ok      github.com/raphael/goa-cellar
+FAIL    github.com/raphael/goa-middleware/cors - go test: exit status 1
+ok      github.com/raphael/goa-middleware/gzip
+FAIL    github.com/raphael/goa-middleware/jwt - go test: exit status 1
+FAIL    github.com/raphael/goa-middleware/middleware - go get: exit
+status 1
+FAIL    github.com/raphael/goa/examples/cellar - go get: exit status 1
+FAIL    github.com/deferpanic/dpgoa/example/client/deferpanic-cli - go
+get: exit status 1
+FAIL    github.com/raphael/goa/examples/cellar/swagger - go get: exit
+status 1
+12 packages 8 failed:    6 failed get    0 build    2 test
 ```
 
 # Todo
