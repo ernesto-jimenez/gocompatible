@@ -21,20 +21,20 @@ type Local struct {
 
 // List looks for all dependent packages in the specified Path
 func (g *Local) List(pkg string, recursive bool) ([]string, error) {
-	searched := `\"` + pkg
+	searched := `"` + pkg
 	if !recursive {
-		searched += `\"`
+		searched += `"`
 	}
 	dirs := g.dirs()
 	if len(dirs) == 0 {
 		return nil, fmt.Errorf("no packages within scope %s", g.Path)
 	}
-	cmd := exec.Command("/bin/sh", "-c",
-		fmt.Sprintf(
-			"find %s -type f -name \\*.go -exec grep -F %s -sl {} +",
-			strings.Join(dirs, " "),
+	cmd := exec.Command("find", dirs...)
+	cmd.Args = append(cmd.Args,
+		strings.Split(fmt.Sprintf(
+			"-type f -name *.go -exec grep -F %s -sl {} +",
 			searched,
-		),
+		), " ")...,
 	)
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer
@@ -46,7 +46,7 @@ func (g *Local) List(pkg string, recursive bool) ([]string, error) {
 	scanner := bufio.NewScanner(&stdout)
 	list := deduplist(make(map[string]bool))
 	for scanner.Scan() {
-		p := util.StripGopath(path.Dir(scanner.Text()))
+		p := strings.TrimPrefix(util.StripGopath(path.Dir(scanner.Text())), "/")
 		list.add(p)
 	}
 	if err := scanner.Err(); err != nil {
