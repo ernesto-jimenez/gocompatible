@@ -207,6 +207,125 @@ FAIL    github.com/raphael/goa/examples/cellar/swagger - go get: exit status 1
 12 packages 8 failed:    6 failed get    0 build    2 test
 ```
 
+
+# gocompatible diff --help
+
+```txt
+Usage:
+  gocompatible diff [options] --from <commit> [<package>] [flags]
+
+Examples:
+# Check whether changes between testify v1.0 and
+# v1.1.1 broke any tests in aws-sdk-go
+gocompatible diff github.com/stretchr/testify/... \
+  --filter github.com/aws/aws-sdk-go/awstesting \
+  --from v1.0 --to v1.1.1
+
+Flags:
+      --build         build packages
+  -c, --from string   commit/tag/branch of <package> to checkout and
+select only the packages with green builds
+      --insecure      allows running testing packages from godoc
+  -t, --to string     commit/tag/branch of the tested package we want to
+compare with from to see how many packages broke (default "master")
+
+Global Flags:
+  -d, --docker          run the command in a docker container
+  -f, --filter string   select dependents within the given path
+      --godoc           find dependents in godoc.org
+  -l, --local           find dependents in your $GOPATH (default true)
+  -r, --recurisve       check subpackages too
+  -v, --verbose         verbose output
+```
+
+# gocompile test --help
+
+```txt
+This can be useful to consider whether to upgrade one of your
+dependencies
+across your organisation.
+
+e.g.: Imagine you work at uber and whant to check your packages running
+testify
+will work with the latests version on master. You could run:
+
+gocompatible githb.com/stretchr/testify/... \
+  --filter github.com/uber
+
+This will find all the packages on your GOPATH depending on testify and
+run
+their tests with the latest version of testify.
+
+You could also checkout a specific branch or tag from testify:
+
+gocompatible githb.com/stretchr/testify/... \
+  --checkout v1.1
+  --filter github.com/uber
+
+Usage:
+  gocompatible test [options] [<package>] [flags]
+
+Examples:
+# Run test for all packages in GOPATH dependent on testify/assert
+gocompatible test github.com/stretchr/testify/assert
+
+# Run tests from all uber packages tracked by godoc.org as dependent on
+testify/assert
+gocompatible test github.com/stretchr/testify/assert \
+  --filter github.com/uber \
+  --godoc --insecure
+
+Flags:
+      --build             Build packages
+  -c, --checkout string   The commit/tag/branch of the tested package we
+want to checkout (default "master")
+      --insecure          Allows running testing packages from godoc
+
+Global Flags:
+  -d, --docker          run the command in a docker container
+  -f, --filter string   select dependents within the given path
+      --godoc           find dependents in godoc.org
+  -l, --local           find dependents in your $GOPATH (default true)
+  -r, --recurisve       check subpackages too
+  -v, --verbose         verbose output
+```
+
+# gocompatible dependents --help
+
+```txt
+This is very useful for:
+
+ - Finding local packages depending on certain package.
+ e.g: to consider upgrading a package.
+ - Finding packages tracked by godoc.org as importing certain package.
+ e.g: to help you maintain backwards compatibility of your open source
+package.
+
+Usage:
+  gocompatible dependents [<package>] [flags]
+
+Examples:
+# Find all pkgs on GOPATH depending on .
+gocompatible dependents
+
+# Find all pkgs on GOPATH depending on ./...
+gocompatible dependents ./...
+
+# Find all pkgs on GOPATH depending on testify
+gocompatible dependents github.com/stretchr/testify/...
+
+# Find all pkgs tracked by godoc.org as importing testify
+gocompatible dependents --godoc github.com/stretchr/testify/...
+
+Global Flags:
+  -d, --docker          run the command in a docker container
+  -f, --filter string   select dependents within the given path
+      --godoc           find dependents in godoc.org
+  -l, --local           find dependents in your $GOPATH (default true)
+  -r, --recurisve       check subpackages too
+  -v, --verbose         verbose output
+```
+
 # Where does the idea come from?
 
 While developing [testify][testify] we sometimes need to evaluate whether a
