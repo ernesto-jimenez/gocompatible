@@ -12,7 +12,7 @@ import (
 
 // testCmd represents the test command
 var testCmd = &cobra.Command{
-	Use:   "test [options] [<package>]",
+	Use:   "test [<package>]",
 	Short: "Run tests for all depending packages",
 	Long: `
 

@@ -42,6 +42,19 @@ ok      github.com/aws/aws-sdk-go/awstesting
 1 packages 0 failed
 ```
 
+You can also pass a public PR to diff:
+
+```txt
+docker run --rm quay.io/ernesto_jimenez/gocompatible \
+        gocompatible diff https://github.com/stretchr/testify/pull/260 \
+        --filter github.com/uber \
+        --godoc --insecure
+ok      github.com/uber/go-torch
+0 packages skipped due to tests failing in
+8dee258ab1a7c32ec2d2748e6ccce5e2817313c8
+1 packages 0 failed
+```
+
 Since executing code from random people in the internet is not a good
 idea `gocompatible` comes with safeguards:
 
@@ -212,7 +225,7 @@ FAIL    github.com/raphael/goa/examples/cellar/swagger - go get: exit status 1
 
 ```txt
 Usage:
-  gocompatible diff [options] --from <commit> [<package>] [flags]
+  gocompatible diff --from <commit> [<package>] [flags]
 
 Examples:
 # Check whether changes between testify v1.0 and
@@ -260,7 +273,7 @@ gocompatible githb.com/stretchr/testify/... \
   --filter github.com/uber
 
 Usage:
-  gocompatible test [options] [<package>] [flags]
+  gocompatible test [<package>] [flags]
 
 Examples:
 # Run test for all packages in GOPATH dependent on testify/assert
