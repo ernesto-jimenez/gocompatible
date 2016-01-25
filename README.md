@@ -49,10 +49,14 @@ docker run --rm quay.io/ernesto_jimenez/gocompatible \
         gocompatible diff https://github.com/stretchr/testify/pull/260 \
         --filter github.com/uber \
         --godoc --insecure
-ok      github.com/uber/go-torch
-0 packages skipped due to tests failing in
-8dee258ab1a7c32ec2d2748e6ccce5e2817313c8
-1 packages 0 failed
+ok      github.com/uber-common/bark/mocks
+ok      github.com/uber/ringpop-go/swim
+ok      github.com/uber/ringpop-go/test/mocks
+ok      github.com/uber/tchannel-go/testutils
+ok      github.com/uber/tchannel-go/thrift/mocks
+ok      github.com/uber/tchannel-go/trace/thrift/mocks
+0 packages skipped due to tests failing in 8dee258ab1a7c32ec2d2748e6ccce5e2817313c8
+6 packages 0 failed
 ```
 
 Since executing code from random people in the internet is not a good
